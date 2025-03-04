@@ -46,7 +46,7 @@ const CoinTable = () => {
         <Button onClick={() => refetch()}>Refresh Data</Button>
       </div>
       
-      {isFetching && isLoading? (
+      {isFetching || isLoading? (
         <div className="flex flex-col gap-y-2">
           <Skeleton className="w-full h-64 rounded-xl" />
         </div>
