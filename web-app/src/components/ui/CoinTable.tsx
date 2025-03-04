@@ -9,9 +9,10 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { useSearch } from '@/hooks/useSearch';
-import { Separator } from './separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const CoinTable = () => {
+  const isMobile = useIsMobile();
   const { data: allCoins, error, isLoading, refetch } = useQuery({
     queryKey: ['get-all-coins'],
     queryFn: queryAllCoins
@@ -26,15 +27,6 @@ const CoinTable = () => {
     }
   }, [allCoins, setData]);
 
-  if (isLoading) return (
-    <div className="flex flex-col gap-y-2">
-      <Skeleton className="w-full h-8 rounded-xl" />
-      <Separator/>
-      <Skeleton className="w-full h-8 rounded-xl" />
-      <Separator/>
-      <Skeleton className="w-full h-8 rounded-xl" />
-    </div>
-  );
   
   if (error) return <div>Error loading data</div>;
 
@@ -54,9 +46,9 @@ const CoinTable = () => {
         <Button onClick={() => refetch()}>Refresh Data</Button>
       </div>
       
-      {isFetching ? (
+      {isFetching && isLoading? (
         <div className="flex flex-col gap-y-2">
-          <Skeleton className="w-full h-8 rounded-xl" />
+          <Skeleton className="w-full h-64 rounded-xl" />
         </div>
       ) : (
         <div className="relative border rounded-md overflow-y-auto scroll-smooth h-screen max-h-[600px]">
@@ -65,12 +57,12 @@ const CoinTable = () => {
               <TableRow>
                 <TableHead className="w-16">Rank</TableHead>
                 <TableHead className="w-48">Name</TableHead>
-                <TableHead className="w-24">Symbol</TableHead>
+                {!isMobile && <TableHead className="w-24">Symbol</TableHead>}
                 <TableHead className="w-32">Price (USD)</TableHead>
-                <TableHead className="w-40">Market Cap</TableHead>
-                <TableHead className="w-32">Supply</TableHead>
-                <TableHead className="w-32">VWAP (24Hr)</TableHead>
-                <TableHead className="w-32">Change (24Hr)</TableHead>
+                {!isMobile && <TableHead className="w-40">Market Cap</TableHead>}
+                {!isMobile && <TableHead className="w-32">Supply</TableHead>}
+                {!isMobile && <TableHead className="w-32">VWAP (24Hr)</TableHead>}
+                {!isMobile && <TableHead className="w-32">Change (24Hr)</TableHead>}
                 <TableHead className="w-24">Explorer</TableHead>
               </TableRow>
             </TableHeader>
@@ -93,23 +85,27 @@ const CoinTable = () => {
                         <span>{coin.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="w-24">{coin.symbol}</TableCell>
+                    {!isMobile && <TableCell className="w-24">{coin.symbol}</TableCell>}
                     <TableCell className="w-32">${parseFloat(coin.priceUsd).toFixed(2)}</TableCell>
-                    <TableCell className="w-40">${parseFloat(coin.marketCapUsd).toFixed(2)}</TableCell>
-                    <TableCell className="w-32">{parseFloat(coin.supply).toLocaleString()}</TableCell>
-                    <TableCell className="w-32">${parseFloat(coin.vwap24Hr).toFixed(2)}</TableCell>
-                    <TableCell className="w-32">
-                      <div className="flex items-center gap-1">
-                        {parseFloat(coin.changePercent24Hr) > 0 ? (
-                          <ArrowUp color="green" />
-                        ) : (
-                          <ArrowDown color="red" />
-                        )}
-                        <span className={parseFloat(coin.changePercent24Hr) > 0 ? "text-green-500" : "text-red-500"}>
-                          {parseFloat(coin.changePercent24Hr).toFixed(2)}%
-                        </span>
-                      </div>
-                    </TableCell>
+                    {!isMobile && <TableCell className="w-40">${parseFloat(coin.marketCapUsd).toFixed(2)}</TableCell>}
+                    {!isMobile && <TableCell className="w-32">{parseFloat(coin.supply).toLocaleString()}</TableCell>}
+                    {!isMobile && (
+                      <TableCell className="w-32">${parseFloat(coin.vwap24Hr).toFixed(2)}</TableCell>
+                    )}
+                    {!isMobile && (
+                      <TableCell className="w-32">
+                        <div className="flex items-center gap-1">
+                          {parseFloat(coin.changePercent24Hr) > 0 ? (
+                            <ArrowUp color="green" />
+                          ) : (
+                            <ArrowDown color="red" />
+                          )}
+                          <span className={parseFloat(coin.changePercent24Hr) > 0 ? "text-green-500" : "text-red-500"}>
+                            {parseFloat(coin.changePercent24Hr).toFixed(2)}%
+                          </span>
+                        </div>
+                      </TableCell>
+                    )}
                     <TableCell className="w-24 flex items-center gap-1">
                       <a href={coin.explorer} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                         <Link className="ml-2" size={16} />
